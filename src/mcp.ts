@@ -3,9 +3,10 @@ import * as z from "zod/v4";
 import { writeFileSync, readFileSync, existsSync } from "node:fs";
 import { resolve, join } from "node:path";
 
-const CONFIG_FILENAME = "searchcraft.config.ts";
+const CONFIG_FILENAME = "sifter.config.ts";
+const LEGACY_CONFIG_FILENAME = "searchcraft.config.ts";
 
-const CONFIG_TEMPLATE = `import { createSifter } from "searchcraft";
+const CONFIG_TEMPLATE = `import { createSifter } from "sifter-next";
 
 // Define your searchable schema
 export const search = createSifter({
@@ -18,7 +19,7 @@ export const search = createSifter({
 });
 `;
 
-const CONFIG_TEMPLATE_PRESSROOM = `import { createSifter } from "searchcraft";
+const CONFIG_TEMPLATE_PRESSROOM = `import { createSifter } from "sifter-next";
 
 // Define your searchable schema
 // Pressroom detected — content collections are auto-indexed when using
@@ -57,17 +58,24 @@ function detectPressroom(pkg: Record<string, unknown> | null): boolean {
   return hasDependency(pkg, "pressroom");
 }
 
-const server = new McpServer({
-  name: "searchcraft",
-  version: "0.1.0",
-});
+function createSifterMcpServer(): McpServer {
+  const server = new McpServer({
+    name: "sifter",
+    version: "0.1.1",
+  });
 
-server.tool(
+  server.registerTool(
   "sifter_init",
-  "Scaffolds a searchcraft.config.ts in a project directory with a starter search schema. Detects pressroom integration if present.",
-  { projectDir: z.string().describe("Absolute path to the project directory") },
+  {
+    description:
+      "Scaffolds a sifter.config.ts in a project directory with a starter search schema. Detects pressroom integration if present.",
+    inputSchema: z.object({
+      projectDir: z.string().describe("Absolute path to the project directory"),
+    }),
+  },
   async ({ projectDir }) => {
     const configPath = resolve(projectDir, CONFIG_FILENAME);
+    const legacyConfigPath = resolve(projectDir, LEGACY_CONFIG_FILENAME);
 
     if (existsSync(configPath)) {
       return {
@@ -80,6 +88,17 @@ server.tool(
       };
     }
 
+    if (existsSync(legacyConfigPath)) {
+      return {
+        content: [
+          {
+            type: "text" as const,
+            text: `${LEGACY_CONFIG_FILENAME} already exists at ${legacyConfigPath}. Rename it to ${CONFIG_FILENAME} and replace imports from "searchcraft" with "sifter-next".`,
+          },
+        ],
+      };
+    }
+
     const pkg = readPackageJson(projectDir);
     const warnings: string[] = [];
 
@@ -87,9 +106,9 @@ server.tool(
       warnings.push(
         "No package.json found in the directory. Make sure you are in a project root.",
       );
-    } else if (!hasDependency(pkg, "searchcraft")) {
+    } else if (!hasDependency(pkg, "sifter-next")) {
       warnings.push(
-        '"searchcraft" is not listed in your package.json dependencies. Run: npm install searchcraft',
+        '"sifter-next" is not listed in your package.json dependencies. Run: npm install sifter-next',
       );
     }
 
@@ -106,7 +125,7 @@ server.tool(
       "",
       "Next steps:",
       "  1. Add your documents to the config",
-      "  2. Import { search } from './searchcraft.config' in your app",
+      "  2. Import { search } from './sifter.config' in your app",
       "  3. Call search.search('your search term') to search",
     ].join("\n");
 
@@ -116,13 +135,22 @@ server.tool(
   },
 );
 
-server.tool(
+  server.registerTool(
   "sifter_search",
-  "Search documents using the searchcraft engine. This is a demo tool that works with sample data to demonstrate BM25 scoring, fuzzy matching, and result ranking.",
   {
-    query: z.string().describe("The search query string"),
-    limit: z.number().optional().describe("Maximum number of results to return (default: 10)"),
-    fuzzy: z.boolean().optional().describe("Enable fuzzy matching (default: false)"),
+    description:
+      "Search documents using the Sifter engine. This is a demo tool that works with sample data to demonstrate BM25 scoring, fuzzy matching, and result ranking.",
+    inputSchema: z.object({
+      query: z.string().describe("The search query string"),
+      limit: z
+        .number()
+        .optional()
+        .describe("Maximum number of results to return (default: 10)"),
+      fuzzy: z
+        .boolean()
+        .optional()
+        .describe("Enable fuzzy matching (default: false)"),
+    }),
   },
   async ({ query, limit, fuzzy }) => {
     // Demo data to illustrate search capabilities
@@ -174,7 +202,7 @@ server.tool(
         content: [
           {
             type: "text" as const,
-            text: `No results found for "${query}" in sample data.\n\nNote: This is a demo tool using sample documents. In production, searchcraft indexes your actual documents with BM25 scoring for much better results.\n\nTo use searchcraft in your project:\n  1. npm install searchcraft\n  2. npx searchcraft init\n  3. Add your documents to searchcraft.config.ts`,
+            text: `No results found for "${query}" in sample data.\n\nNote: This is a demo tool using sample documents. In production, Sifter indexes your actual documents with BM25 scoring for much better results.\n\nTo use Sifter in your project:\n  1. npm install sifter-next\n  2. npx sifter-next init\n  3. Add your documents to sifter.config.ts`,
           },
         ],
       };
@@ -191,11 +219,16 @@ server.tool(
       content: [
         {
           type: "text" as const,
-          text: `Search results for "${query}"${fuzzy ? " (fuzzy)" : ""}:\n\n${formatted}\n\nNote: This is a demo using sample data. In production, searchcraft indexes your actual documents with BM25 scoring.`,
+          text: `Search results for "${query}"${fuzzy ? " (fuzzy)" : ""}:\n\n${formatted}\n\nNote: This is a demo using sample data. In production, Sifter indexes your actual documents with BM25 scoring.`,
         },
       ],
     };
   },
-);
+  );
 
-export { server };
+  return server;
+}
+
+const server = createSifterMcpServer();
+
+export { createSifterMcpServer, server };

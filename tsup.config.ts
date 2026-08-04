@@ -15,6 +15,7 @@ export default defineConfig([
     dts: false,
     splitting: false,
     clean: false,
-    external: ["react", "next", "@modelcontextprotocol/server", "zod"],
+    external: ["react", "next"],
+    noExternal: ["@modelcontextprotocol/server", "zod"],
   },
 ]);

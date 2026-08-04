@@ -1,12 +1,12 @@
 # Monorepo Migration
 
-This package is being consolidated into the sathergate-toolkit Turborepo monorepo.
+This package is planned for consolidation into the sathergate-toolkit Turborepo monorepo.
 
-## What Changed
-- tsconfig.json now extends a shared base config (../../tsconfig.base.json)
+## Planned Changes
 - Package will live under packages/{npm-name}/ in the monorepo
-- Build orchestration moves to Turborepo (turbo run build)
-- Shared devDependencies hoisted to monorepo root
+- tsconfig.json will extend the monorepo's shared base config
+- Build orchestration will move to Turborepo (`turbo run build`)
+- Shared devDependencies will be hoisted to the monorepo root
 
 ## Monorepo Structure
 packages/
@@ -16,4 +16,4 @@ packages/
   notifykit/       (herald)
   croncall/        (clocktower)
   vaultbox/        (lockbox)
-  searchcraft/     (sifter)
+  sifter-next/     (Sifter)

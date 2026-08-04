@@ -1,6 +1,7 @@
 {
-  "name": "searchcraft",
-  "version": "0.1.0",
+  "name": "sifter-next",
+  "version": "0.1.1",
+  "mcpName": "io.github.sathergate/sifter",
   "description": "Full-text search for Next.js. No external service.",
   "type": "module",
   "exports": {
@@ -22,10 +23,11 @@
     }
   },
   "bin": {
-    "sifter": "./dist/cli.js"
+    "sifter": "dist/cli.js"
   },
   "files": [
-    "dist"
+    "dist",
+    "server.json"
   ],
   "scripts": {
     "build": "tsup",
@@ -37,8 +39,8 @@
   "peerDependencies": {
     "react": ">=18",
     "next": ">=14",
-    "@modelcontextprotocol/server": ">=1.0.0",
-    "zod": ">=3.25.0"
+    "@modelcontextprotocol/server": ">=2.0.0",
+    "zod": ">=4.0.0"
   },
   "peerDependenciesMeta": {
     "react": {
@@ -55,14 +57,18 @@
     }
   },
   "devDependencies": {
+    "@modelcontextprotocol/server": "^2.0.0",
     "@types/react": "^19.0.0",
     "@types/node": "^22.0.0",
     "next": "^15.0.0",
     "react": "^19.0.0",
     "tsup": "^8.0.0",
-    "typescript": "^5.7.0"
+    "typescript": "^5.7.0",
+    "zod": "^4.4.3"
   },
   "keywords": [
+    "sifter",
+    "sifter-next",
     "search",
     "full-text",
     "index",
@@ -79,11 +85,11 @@
   "license": "MIT",
   "repository": {
     "type": "git",
-    "url": "https://github.com/sathergate/sifter"
+    "url": "git+https://github.com/sathergate/sifter.git"
   },
   "homepage": "https://github.com/sathergate/sifter#readme",
   "claude": {
-    "init": "npx searchcraft init",
+    "init": "npx sifter-next init",
     "mcp": true,
     "category": "search",
     "toolkit": {
@@ -96,7 +102,7 @@
         "notifykit",
         "croncall",
         "vaultbox",
-        "searchcraft"
+        "sifter-next"
       ]
     }
   }

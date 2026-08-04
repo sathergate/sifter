@@ -1,4 +1,4 @@
-# searchcraft
+# Sifter
 
 Full-text search for Next.js. No external service.
 
@@ -7,13 +7,37 @@ Sifter is a zero-dependency, in-process full-text search library built for Next.
 ## Install
 
 ```bash
-npm install searchcraft
+npm install sifter-next
 ```
+
+The product and CLI are named Sifter. The npm package is `sifter-next`
+because the unscoped `sifter` name belongs to an unrelated project.
+
+### Migrating from `searchcraft`
+
+```bash
+npm uninstall searchcraft
+npm install sifter-next
+```
+
+Then replace `searchcraft` import specifiers with `sifter-next` and rename
+`searchcraft.config.ts` to `sifter.config.ts`.
+
+## MCP Server
+
+Start the Sifter MCP server over stdio with Node.js 20 or newer:
+
+```bash
+npx sifter-next mcp
+```
+
+The package is also published with MCP Registry metadata as
+`io.github.sathergate/sifter`.
 
 ## Quick Start
 
 ```ts
-import { createSifter } from "searchcraft";
+import { createSifter } from "sifter-next";
 
 const sifter = createSifter({
   schema: {
@@ -118,8 +142,8 @@ interface MatchInfo {
 
 ## React Components
 
-```bash
-import { SifterProvider, SearchBox, SearchResults, useSearch, useSifter } from "searchcraft/react";
+```tsx
+import { SifterProvider, SearchBox, SearchResults, useSearch, useSifter } from "sifter-next/react";
 ```
 
 ### SifterProvider
@@ -127,8 +151,8 @@ import { SifterProvider, SearchBox, SearchResults, useSearch, useSifter } from "
 Wrap your search UI in a provider:
 
 ```tsx
-import { createSifter } from "searchcraft";
-import { SifterProvider, SearchBox, SearchResults } from "searchcraft/react";
+import { createSifter } from "sifter-next";
+import { SifterProvider, SearchBox, SearchResults } from "sifter-next/react";
 
 const sifter = createSifter({ schema, documents });
 
@@ -181,7 +205,7 @@ Create a search endpoint with zero boilerplate:
 
 ```ts
 // app/api/search/route.ts
-import { createSearchHandler } from "searchcraft/next";
+import { createSearchHandler } from "sifter-next/next";
 import { sifter } from "@/lib/search";
 
 export const GET = createSearchHandler(sifter);
